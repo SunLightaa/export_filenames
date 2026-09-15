@@ -1,0 +1,24 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# 程序输出
+文件列表.html
+文件名称.xlsx
+thumbs/
+*.xlsx
+
+# 系统/编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
