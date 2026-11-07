@@ -92,6 +92,18 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
     .field-name { flex: 1 1 280px; }
     .field-sort { flex: 0 1 200px; }
+    .field-export { flex: 0 0 auto; }
+    button.export-btn {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0 14px;
+      font-size: 14px;
+      background: #111827;
+      color: #fff;
+      cursor: pointer;
+    }
+    button.export-btn:hover { background: #374151; }
     .meta { color: var(--muted); font-size: 13px; margin: 0 0 10px; }
     .list { background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
     .head, .row {
@@ -132,6 +144,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           <option value="desc">文件名称降序</option>
         </select>
       </div>
+      <div class="field-export">
+        <label>&nbsp;</label>
+        <button type="button" class="export-btn" id="exportBtn">导出 TXT</button>
+      </div>
     </div>
     <p class="meta" id="meta"></p>
     <div class="list" id="list"></div>
@@ -160,13 +176,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       return false;
     }
 
-    function render() {
+    function getVisibleRows() {
       const keyword = document.getElementById("keyword").value;
       const sort = document.getElementById("sort").value;
-      const rows = ITEMS.filter((item) => fuzzyMatch(item.name, keyword)).sort((a, b) => {
+      return ITEMS.filter((item) => fuzzyMatch(item.name, keyword)).sort((a, b) => {
         const cmp = a.name.localeCompare(b.name, "zh", { numeric: true, sensitivity: "base" });
         return sort === "desc" ? -cmp : cmp;
       });
+    }
+
+    function render() {
+      const rows = getVisibleRows();
 
       document.getElementById("meta").textContent =
         "共 " + ITEMS.length + " 个文件，当前显示 " + rows.length + " 个";
@@ -189,8 +209,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }).join("");
     }
 
+    function exportTxt() {
+      const rows = getVisibleRows();
+      const content = rows.map((item) => item.name).join("\\n");
+      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "文件列表.txt";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
     document.getElementById("keyword").addEventListener("input", render);
     document.getElementById("sort").addEventListener("change", render);
+    document.getElementById("exportBtn").addEventListener("click", exportTxt);
     render();
   </script>
 </body>
